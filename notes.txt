@@ -1,0 +1,80 @@
+Use Smith area - Summer season only or pull weekly means from ERA 5 and full year around sea ice - can do smaller set - it is a test / trial
+Reduce to weekly means
+Increase sea ice length
+
+Use a question driver approach to help prevent wasting time / energy exploring too many options
+
+
+Use only sea ice concentration - mid 2003-2022 - all year - weekly
+https://nsidc.org/data/g10033/versions/1
+
+ERA5 variables: 2 m temp, RH, dew point, downwelling longwave, cloud cover, wind mag - 2003-2022 weekly
+
+Sea ice:
+wget -r -e robots=off --no-parent https://noaadata.apps.nsidc.org/NOAA/G10033/south/weekly/netcdf/
+
+
+Data Prep
+- remove leap years to align weeks
+- dimensional reduction, mean across the spatial dimension
+
+(is all the data normally distributed)
+
+- standard scaler
+
+Run regression using the following algorithms from scikit-learn
+
+OLS
+RidgeCV
+LassoCV
+Random Forest
+NN Regression
+Baggin/Boost/Voting Regressor
+
+
+Create pipeline for each
+use JSON settings file
+
+Add lag option
+
+
+CV search for ridge
+reg = linear_model.RidgeCV(alphas=np.logspace(-6, 6, 13))
+reg.fit([[0, 0], [0, 0], [1, 1]], [0, .1, 1])
+RidgeCV(alphas=array([1.e-06, 1.e-05, 1.e-04, 1.e-03, 1.e-02, 1.e-01, 1.e+00, 1.e+01,
+      1.e+02, 1.e+03, 1.e+04, 1.e+05, 1.e+06]))
+reg.alpha_
+
+
+CV search for ridge, lasso and elastic
+
+Evaluation
+- feature importance
+- learning curve
+- accuracy vs training samples
+- table of mse / r2 / ase
+
+
+Voting Regressor
+from sklearn.datasets import load_diabetes
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import VotingRegressor
+# Loading some example data
+X, y = load_diabetes(return_X_y=True)
+# Training classifiers
+reg1 = GradientBoostingRegressor(random_state=1)
+reg2 = RandomForestRegressor(random_state=1)
+reg3 = LinearRegression()
+ereg = VotingRegressor(estimators=[('gb', reg1), ('rf', reg2), ('lr', reg3)])
+ereg = ereg.fit(X, y)
+
+
+train/test - does it preserve index order when split?
+handle lag with - if index order is preserved, this works
+
+
+978-1-80181-931-2
+
+Raschka, Sebastian; Liu, Yuxi (Hayden); Mirjalili, Vahid. Machine Learning with PyTorch and Scikit-Learn: Develop machine learning and deep learning models with Python . Packt Publishing. Kindle Edition. 
